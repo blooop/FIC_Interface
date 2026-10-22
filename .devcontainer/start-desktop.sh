@@ -9,6 +9,13 @@ if pgrep -u "$(id -u)" -x Xtigervnc >/dev/null; then
     exit 0
 fi
 
+# The image's launch scripts and desktop entries come from docker/rootfs/ at
+# the commit it was built from. Lay this checkout's copy over them, as the
+# Dockerfile does, so a change there takes effect without a new image.
+root="$(cd "$(dirname "$0")/.." && pwd)/docker/rootfs"
+sudo cp -r --no-preserve=mode,ownership "${root}/." /
+sudo chmod 0755 /usr/local/bin/fic /usr/local/bin/fic-*
+
 export XDG_RUNTIME_DIR=/tmp/runtime-fic
 mkdir -p "${ROS_LOG_DIR:-/tmp/ros_log}"
 

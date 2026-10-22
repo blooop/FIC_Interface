@@ -223,9 +223,13 @@ trap on_stop TERM INT HUP
 gui_pid=""
 case "${mode}" in
     # The web interface, as the desktop entry starts it (its "Classic interface"
-    # action is in the menu). Chromium has no sandbox, GPU or large /dev/shm here.
+    # action is in the menu). Chromium has no sandbox or large /dev/shm here.
+    # Its 3D view needs WebGL, which needs Qt's GLX integration (so not the
+    # `none` above) and Chromium's GPU path: --disable-gpu turns WebGL off, and
+    # without --ignore-gpu-blocklist Chromium refuses llvmpipe.
     studio)  log "starting FIC Control Studio"
-             QTWEBENGINE_CHROMIUM_FLAGS="--no-sandbox --disable-gpu --disable-dev-shm-usage" \
+             QT_XCB_GL_INTEGRATION=xcb_glx \
+             QTWEBENGINE_CHROMIUM_FLAGS="--no-sandbox --ignore-gpu-blocklist --disable-dev-shm-usage" \
                  fic studio --web-ui & gui_pid=$! ;;
     dev)     log "starting FIC Dev Console";    fic dev    & gui_pid=$! ;;
     desktop) log "desktop only: start programs from the taskbar" ;;
