@@ -1,0 +1,43 @@
+{
+    "name": "fic-interface",
+
+    // The published simulation image already holds ROS 2 Jazzy, MuJoCo, Qt,
+    // the noVNC desktop and every build dependency, so nothing is built here.
+    // The workspace in /opt/fic is the image's own copy; this checkout is
+    // built next to it by postCreateCommand and used instead (FIC_ROOT below).
+    "image": "ghcr.io/trl-sussex/fic_interface:latest",
+
+    // The image's user `fic` is UID 1000; devpod moves it to the host UID.
+    "containerUser": "fic",
+    "remoteUser": "fic",
+    "updateRemoteUserUID": true,
+
+    // The image's `fic`, fic-session and env.sh all read the workspace from
+    // FIC_ROOT, so pointing it at the checkout makes `fic studio`, the
+    // desktop's taskbar and every shell run the code being edited.
+    "remoteEnv": {
+        "FIC_ROOT": "${containerWorkspaceFolder}"
+    },
+
+    // The desktop in the browser and the Studio's web remote, on this
+    // computer only. Not 6080/8088, so docker/fic-studio.sh can run alongside.
+    // Only one dl workspace of this repo can hold these ports at a time.
+    "runArgs": [
+        "--shm-size=2g",
+        "-p", "127.0.0.1:6081:6080",
+        "-p", "127.0.0.1:8089:8088"
+    ],
+
+    "postCreateCommand": ".devcontainer/post-create.sh",
+    "postStartCommand": ".devcontainer/start-desktop.sh",
+
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-vscode.cpptools",
+                "ms-iot.vscode-ros"
+            ]
+        }
+    }
+}
